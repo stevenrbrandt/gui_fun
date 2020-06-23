@@ -18,10 +18,12 @@ display(HTML("""
     background: #DDDDDD;
     padding: 5px;
     border: black solid 1px;
+    font-weight: bold;
 }
 .off_label_style_0 {
     padding: 5px;
     border: black solid 1px;
+    font-weight: bold;
 }
 </style>
 """))
@@ -93,7 +95,7 @@ def BLabel(value,style):
     label.add_class(style)
     return label
 
-def gui_fun(f, tag="", settings = None):
+def gui_fun(f, tag="", defaults=None, settings = None):
     global gui_settings
     fn = f.__name__
     mo = str(f.__module__)
@@ -153,7 +155,8 @@ def gui_fun(f, tag="", settings = None):
 
     # Create an array of blank strings to use
     # for default display values
-    r = ["" for i in range(len(fargs.args))]
+    empty = object()
+    r = [empty for i in range(len(fargs.args))]
 
     # Load the default values from the
     # function definitions.
@@ -163,6 +166,10 @@ def gui_fun(f, tag="", settings = None):
 
     # Load the values stored from the
     # last time this function was invoked.
+    if defaults is not None:
+        pairs = load_property(f, defaults)
+        for i in range(len(fargs.args)):
+            r[i] = pairs.get(fargs.args[i], r[i])
     pairs = load_property(f, tag)
     for i in range(len(fargs.args)):
         r[i] = pairs.get(fargs.args[i], r[i])
@@ -170,7 +177,9 @@ def gui_fun(f, tag="", settings = None):
         # Don't prompt for the self field of
         # member functions. That is already
         # filled in if gui() is called properly.
-        if fargs.args[i] == "self":
+        if r[i] == empty:
+            pass
+        elif fargs.args[i] == "self":
             pass 
         elif type(disp[i+index]) in [Password, Text, Textarea]:
             disp[i+index].value = str(r[i])
@@ -207,6 +216,7 @@ def gui_fun(f, tag="", settings = None):
         # stored values will still load properly
         # if we change the arguments around.
         store_property(f, pairs, tag)
+        run.disabled = True
     run.on_click(gui_run)
     disp += [run]
     desc += [Label()]
