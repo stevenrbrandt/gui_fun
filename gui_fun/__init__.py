@@ -1,10 +1,22 @@
-from asyncio import Future
 import inspect
 import pickle
 import stat
 import os
 import re
 from ipywidgets import *
+
+class ResultStream:
+    def __init__(self):
+        self.results = []
+    def has_result(self):
+        return len(self.results) > 0
+    def pop_result(self):
+        val = self.results[0]
+        self.results = self.results[1:]
+        return val
+    def add_result(self,result):
+        print("added result:", result)
+        self.results += [result]
 
 display(HTML("""
 <style>
@@ -196,7 +208,7 @@ def gui_fun(f, tag="", defaults=None, settings = None):
         elif type(disp[i+index]) == Dropdown:
             disp[i+index].value = r[i]
     run = Button(description="Run")
-    retval = Future()
+    retval = ResultStream()
     def gui_run(_):
         vals = []
         pairs = {}
@@ -211,12 +223,11 @@ def gui_fun(f, tag="", defaults=None, settings = None):
                 vals += [unstr(d.value)]
                 # store them.
                 pairs[l.value] = d.value
-        retval.set_result( f(*vals) )
+        retval.add_result( f(*vals) )
         # Because we store name value pairs,
         # stored values will still load properly
         # if we change the arguments around.
         store_property(f, pairs, tag)
-        run.disabled = True
     run.on_click(gui_run)
     disp += [run]
     desc += [Label()]
