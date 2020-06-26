@@ -8,6 +8,9 @@ from ipywidgets import *
 class ResultStream:
     def __init__(self):
         self.results = []
+        self.listeners = []
+    def add_listener(self, listener):
+        self.listeners += [listener]
     def has_result(self):
         return len(self.results) > 0
     def pop_result(self):
@@ -15,7 +18,14 @@ class ResultStream:
         self.results = self.results[1:]
         return val
     def add_result(self,result):
-        print("added result:", result)
+        new_listeners = []
+        for listener in self.listeners:
+            try:
+                listener(result)
+                new_listeners += [listener]
+            except Exception as e:
+                print(e)
+        self.listeners = new_listeners
         self.results += [result]
 
 display(HTML("""
