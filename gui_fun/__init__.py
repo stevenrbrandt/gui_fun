@@ -34,16 +34,16 @@ display(HTML("""
     background: black;
     color: white;
     font-weight: bold;
-    padding: 5px;
+    padding-left: 5px;
 }
 .off_label_style_1 {
     background: #DDDDDD;
-    padding: 5px;
+    padding-left: 5px;
     border: black solid 1px;
     font-weight: bold;
 }
 .off_label_style_0 {
-    padding: 5px;
+    padding-left: 5px;
     border: black solid 1px;
     font-weight: bold;
 }
@@ -232,5 +232,8 @@ def gui_fun(f, tag="", defaults=None, settings = None):
     run.on_click(gui_run)
     disp += [run]
     desc += [Label()]
-    display(HBox([VBox(desc),VBox(disp)]))
+    grid = []
+    for i in range(len(disp)):
+        grid += [desc[i], disp[i]]
+    display(GridBox(children=grid, layout=Layout(grid_template_columns='30% 50%')))
     return retval
