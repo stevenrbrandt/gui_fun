@@ -96,15 +96,6 @@ def unstr(s):
     if type(s) != str:
         return s
 
-    # substitute values from the environment
-    # if we see things that look like ${NAME}
-    while True:
-        g = re.search(r'\$\{(\w+)\}', s)
-        if g:
-            s = s[0:g.start()]+os.environ.get(g.group(1),"")+s[g.end():]
-        else:
-            break
-
     if s == "None":
         return None
     elif re.match(r'[\[{"]',s):
