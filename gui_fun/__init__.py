@@ -3,6 +3,7 @@ import pickle
 import stat
 import os
 import re
+import html
 from ipywidgets import *
 
 class ResultStream:
@@ -237,3 +238,72 @@ def gui_fun(f, tag="", defaults=None, settings = None):
         grid += [desc[i], disp[i]]
     display(GridBox(children=grid, layout=Layout(grid_template_columns='30% 50%')))
     return retval
+
+def ctype(x):
+    t = type(x)
+    if t == int:
+        return "itype"
+    elif t == float:
+        return "ftype"
+    elif t == list:
+        return "ltype"
+    elif t == dict:
+        return "dtype"
+    elif t == str:
+        return "stype"
+    elif t == tuple:
+        return "ttype"
+    else:
+        return "otype"
+
+def ddata(x):
+    if type(x) in [list, set, tuple]:
+        out = "<table border=1 cellpadding=35 cellspacing=0>"
+        for i,k in enumerate(x):
+            out += "<tr><td class='num'>%d</td><td class='%s'>%s</td></tr>" % (i,ctype(k),ddata(k))
+        return out + "</table>"
+    elif type(x) == dict:
+        out = "<table border=1 cellpadding=5 cellspacing=5>"
+        for i in x:
+            out += "<tr><td class='key'>%s</td><td class='%s'>%s</td></tr>" % (ddata(i),ctype(x[i]),ddata(x[i]))
+        return out + "</table>"
+    else:
+        return html.escape(str(x))
+
+def gui_show(x):
+    display(HTML("""
+<style>
+td {
+    padding: 3px;
+}
+td.num {
+    padding: 3px;
+    background: #ddFFdd;
+}
+td.key {
+    padding: 3px;
+    background: #ddddFF;
+}
+td.itype {
+    passing: 10px;
+    background: #aaffff;
+}
+td.ftype {
+    passing: 3px;
+    background: #ddffff;
+}
+td.stype {
+    passing: 3px;
+    background: #ffddff;
+}
+td.ttype {
+    passing: 3px;
+    background: #ffffdd;
+}
+td.otype {
+    passing: 3px;
+    background: #ffffff;
+}
+</style>
+"""))
+    display(HTML(ddata(x)))

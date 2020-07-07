@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name='gui_fun',
-  version='1.0.7',
+  version='1.0.8',
   description='Create a basic gui for a function',
   long_description='''
   Create a basic gui for a function.
